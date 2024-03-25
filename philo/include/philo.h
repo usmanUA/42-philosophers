@@ -27,34 +27,41 @@ typedef struct s_fork
 	pthread_mutex_t *fork_lock;
 }	t_fork;
 
-typedef struct s_data
+typedef struct s_info
 {
 	int idx;
 	int tot_philos;
+	int philo_died;
+	int start_time;
+	int phil_time;
 	long long time_to_die;
 	long long eating_time;
 	long long sleeping_time;
 	int n_times_eat;	
-} t_data;
+} t_info;
 
 typedef struct s_locks
 {
-	pthread_mutex_t *print_lock;
-	pthread_mutex_t	*start_lock;
+	pthread_mutex_t print_lock;
+	pthread_mutex_t	start_lock;
 }	t_locks;
 
 typedef struct s_philo
 {
 	int *phil_num;
-	t_data *data;
+	int *start_time;
+	int *last_eat_time;
+	t_info *info;
 	t_fork *left_fork;
 	t_fork *right_fork;
-	t_locks	*locks;
+	pthread_mutex_t *print_lock;
+	pthread_mutex_t	*start_lock;
 }	t_philo;
 
 
 
-void ft_save_args(t_data *data, int n_args, char **argv);
-void    ft_philos_atwork(t_data *data);
+int	ft_save_args(t_info *info, int n_args, char **argv);
+long long ft_current_time();
+void    ft_philos_atwork(t_info *info);
 
 #endif

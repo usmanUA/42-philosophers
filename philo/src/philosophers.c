@@ -14,12 +14,13 @@
 
 int main(int argc, char **argv)
 {
-	t_data data;
+	t_info info;
 	
 	if (argc == 5 || argc == 6)
 	{
-		ft_save_args(&data, argc-1, argv);
-		ft_philos_atwork(&data);
+		if (ft_save_args(&info, argc-1, argv))
+			return (1);
+		ft_philos_atwork(&info);
 		return (0);
 	}
 	printf("Error.\n\nUsage: \n");

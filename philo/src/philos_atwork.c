@@ -12,19 +12,19 @@
 
 #include "../include/philo.h"
 
-void    ft_freedata(t_locks **locks, t_fork ***fork, int index)
+long long ft_current_time()
+{
+    struct timeval time_val;
+
+    gettimeofday(&time_val, NULL);
+    return (time_val.tv_sec * 1000 + time_val.tv_usec / 1000);
+}
+
+void    ft_freeinfo(t_locks **locks, t_fork ***fork, int index)
 {
     int ind;
 
     ind = -1;
-    if (locks)
-    {
-        if ((*locks)->print_lock)
-            free((*locks)->print_lock);
-        if ((*locks)->start_lock)
-            free((*locks)->start_lock);
-        free(*locks);
-    }
     if (fork)
     {
         while (++ind < index)
@@ -43,54 +43,143 @@ void    ft_wait(long long time)
 {
     long long start;
     long long end;
-    struct timeval time_val;
 
-    gettimeofday(&time_val, NULL);
-    start = time_val.tv_sec * 1000 + time_val.tv_usec / 1000; 
+    start = ft_current_time(); 
     end = start + time;
     while (start < end)
     {
         usleep(10);
-        gettimeofday(&time_val, NULL);
-        start += time_val.tv_sec * 1000 + time_val.tv_usec / 1000; 
+        start += ft_current_time(); 
     }
 }
 
-void *eating(void *arg)
+void    ft_fork_taken(t_philo *philo)
+{
+    long long time;
+
+    time = ft_current_time();
+    pthread_mutex_lock(philo->print_lock);
+    printf("%lld %d has taken a fork.\n", time, *(philo->phil_num));
+    pthread_mutex_unlock(philo->print_lock);
+}
+
+void    ft_eating_msg(t_philo *philo)
+{
+    long long time;
+
+    time = ft_current_time();
+    pthread_mutex_lock(philo->print_lock);
+    printf("%lld %d is eating.\n", time, *(philo->phil_num));
+    pthread_mutex_unlock(philo->print_lock);
+}
+
+void    ft_sleeping_msg(t_philo *philo)
+{
+    long long time;
+
+    time = ft_current_time();
+    pthread_mutex_lock(philo->print_lock);
+    printf("%lld %d is sleeping.\n", time, *(philo->phil_num));
+    pthread_mutex_unlock(philo->print_lock);
+}
+
+void    ft_thinking_msg(t_philo *philo)
+{
+    long long time;
+
+    time = ft_current_time();
+    pthread_mutex_lock(philo->print_lock);
+    printf("%lld %d is thinking.\n", time, *(philo->phil_num));
+    pthread_mutex_unlock(philo->print_lock);
+}
+
+
+void    ft_death_msg(t_philo *philo)
+{
+    long long time;
+
+    time = ft_current_time();
+    pthread_mutex_lock(philo->print_lock);
+    printf("%lld %d has died.\n", time, *(philo->phil_num));
+    pthread_mutex_unlock(philo->print_lock);
+}
+
+void    ft_eat(t_philo *philo)
+{
+    ft_eating_msg(philo);
+    ft_wait(philo->info->eating_time);
+}
+
+void    ft_sleep(t_philo *philo)
+{
+    ft_sleeping_msg(philo);
+    ft_wait(philo->info->sleeping_time);
+}
+
+void    ft_think(t_philo *philo)
+{
+    ft_thinking_msg(philo);
+}
+
+void *ft_think_first(void *arg)
 {
     t_philo *philo;
     long long start;
     long long end;
     long long current;
-    struct timeval time_val;
 
     philo = (t_philo *)arg;
-    // pthread_mutex_lock(philo->locks->start_lock);
     while (1)
     {
-        gettimeofday(&time_val, NULL);
-        start = time_val.tv_sec * 1000 + time_val.tv_usec / 1000;
-        end = start + philo->data->time_to_die; 
+        start = ft_current_time(); 
+        end = start + philo->info->time_to_die; 
         pthread_mutex_lock(philo->right_fork->fork_lock);
+        ft_fork_taken(philo);
         pthread_mutex_lock(philo->left_fork->fork_lock);
-        gettimeofday(&time_val, NULL);
-        current = time_val.tv_sec * 1000 + time_val.tv_usec / 1000;
+        ft_fork_taken(philo);
+        current = ft_current_time(); 
         if (current >= end)
         {
-            printf("Philosopher %d has died", *(philo->phil_num));
+            ft_death_msg(philo); 
             break ;
         }
-        printf("Philospher %d has taken the fork.\n", *(philo->phil_num));
-        printf("Philospher %d is eating.\n", *(philo->phil_num));
-        ft_wait(philo->data->eating_time);
+        ft_eat(philo);
         pthread_mutex_unlock(philo->right_fork->fork_lock);
         pthread_mutex_unlock(philo->left_fork->fork_lock);
-        printf("Philospher %d is sleeping.\n", *(philo->phil_num));
-        ft_wait(philo->data->sleeping_time);
-        printf("Philospher %d is thinking.\n", *(philo->phil_num));
-        printf("still going.\n");
+        ft_sleep(philo);
+        ft_think(philo);
     }
-    // pthread_mutex_unlock(philo->locks->start_lock);
+    return (NULL);
+}
+
+void *ft_eat_first(void *arg)
+{
+    t_philo *philo;
+    long long start;
+    long long end;
+    long long current;
+
+    philo = (t_philo *)arg;
+    while (1)
+    {
+        start = ft_current_time(); 
+        end = start + philo->info->time_to_die; 
+        pthread_mutex_lock(philo->right_fork->fork_lock);
+        ft_fork_taken(philo);
+        pthread_mutex_lock(philo->left_fork->fork_lock);
+        ft_fork_taken(philo);
+        current = ft_current_time(); 
+        if (current >= end)
+        {
+            ft_death_msg(philo); 
+            break ;
+        }
+        ft_eat(philo);
+        pthread_mutex_unlock(philo->right_fork->fork_lock);
+        pthread_mutex_unlock(philo->left_fork->fork_lock);
+        ft_sleep(philo);
+        ft_think(philo);
+    }
     return (NULL);
 }
 
@@ -107,14 +196,14 @@ static int ft_create_forks(t_fork ***fork, int tot_philos)
         (*fork)[ind] = (t_fork *)malloc(sizeof(t_fork));
         if (!(*fork)[ind])
         {
-            ft_freedata(NULL, fork, ind);
+            ft_freeinfo(NULL, fork, ind);
             return (1);
         }
         (*fork)[ind]->fork = ind;
         (*fork)[ind]->fork_lock = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
         if (!(*fork)[ind]->fork_lock)
         {
-            ft_freedata(NULL, fork, ind);
+            ft_freeinfo(NULL, fork, ind);
             return (1);
         }
     }
@@ -122,100 +211,81 @@ static int ft_create_forks(t_fork ***fork, int tot_philos)
 }
 
 // ***** Create Forks, their locks and also print lock, start lock *****
-int ft_forks_locks_creation_failed(t_fork ***fork, int tot_philos, t_locks **locks)
+static int ft_forks_locks_creation_failed(t_fork ***fork, int tot_philos, t_locks **locks)
 {
     if (ft_create_forks(fork, tot_philos))
         return (1);
-    *locks = (t_locks *)malloc(sizeof(t_locks));
-    if (!(*locks))
-    {
-        ft_freedata(NULL, fork, tot_philos); 
-        return (1);
-    }
-    (*locks)->print_lock = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
-    if (!(*locks)->print_lock) 
-    {
-        ft_freedata(locks, fork, tot_philos);
-        return (1);
-    }
-    (*locks)->start_lock = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
-    if (!(*locks)->start_lock) 
-    {
-        ft_freedata(locks, fork, tot_philos);
-        return (1);
-    }
     return (0);
 }
 
-int ft_parsing_failed(t_philo *philo, t_fork ***fork, t_data *data, t_locks **locks)
+static int ft_parsing_failed(t_philo *philo, t_fork ***fork, t_info *info, t_locks *locks)
 {
-    philo->data = data;
+    philo->info = info;
     philo->phil_num = malloc(sizeof(int));
     if (!philo->phil_num)
     {
-        ft_freedata(NULL, fork, data->tot_philos);
+        ft_freeinfo(NULL, fork, info->tot_philos);
         return (1);
     }
-    *(philo->phil_num) = data->idx + 1;
-    if (data->idx == 0)
-        philo->left_fork = (*fork)[data->tot_philos-1];
+    *(philo->phil_num) = info->idx + 1;
+    if (info->idx == 0)
+        philo->left_fork = (*fork)[info->tot_philos-1];
     else
-        philo->left_fork = (*fork)[data->idx-1];
-    philo->right_fork = (*fork)[data->idx];
-    philo->locks = *locks;
+        philo->left_fork = (*fork)[info->idx-1];
+    philo->right_fork = (*fork)[info->idx];
+    philo->print_lock = &(locks->print_lock);
     return (0);
 }
 
-void    ft_init_mutexes(t_fork ***fork, t_locks **locks)
+void    ft_init_mutexes(t_fork ***fork, t_locks *locks, int tot_philos)
 {
     int ind;
 
     ind = -1;
-    while ((*fork)[++ind])
+    while (++ind < tot_philos)
         pthread_mutex_init((*fork)[ind]->fork_lock, NULL);
-    pthread_mutex_init((*locks)->print_lock, NULL);
-    pthread_mutex_init((*locks)->start_lock, NULL);
+    pthread_mutex_destroy(&(locks->print_lock));
+    pthread_mutex_destroy(&(locks->start_lock));
 }
 
-void    ft_destroy_mutexes(t_fork ***fork, t_locks **locks)
+void    ft_destroy_mutexes(t_fork ***fork, t_locks *locks, int tot_philos)
 {
     int ind;
 
     ind = -1;
-    while ((*fork)[++ind])
+    while (++ind < tot_philos)
         pthread_mutex_destroy((*fork)[ind]->fork_lock);
-    pthread_mutex_destroy((*locks)->print_lock);
-    pthread_mutex_destroy((*locks)->start_lock);
+    pthread_mutex_destroy(&(locks->print_lock));
+    pthread_mutex_destroy(&(locks->start_lock));
 }
 
 
-void    ft_philos_atwork(t_data *data)
+void    ft_philos_atwork(t_info *info)
 {
-    pthread_t philosopher[data->tot_philos];
-    t_philo philo[data->tot_philos];
+    pthread_t philosopher[info->tot_philos];
+    t_philo philo[info->tot_philos];
     t_fork  **fork;
     t_locks *locks;
 
-    //write(1, "here\n", 5);
-    if (ft_forks_locks_creation_failed(&fork, data->tot_philos, &locks))
+    if (ft_forks_locks_creation_failed(&fork, info->tot_philos, &locks))
         return ;
-    ft_init_mutexes(&fork, &locks); 
-//    pthread_mutex_lock(locks->start_lock);
-    while (++data->idx < data->tot_philos)
+    ft_init_mutexes(&fork, locks, info->tot_philos); 
+    while (++info->idx < info->tot_philos+1)
     {
-        if (ft_parsing_failed(&philo[data->idx], &fork, data, &locks))
+        if (ft_parsing_failed(&philo[info->idx], &fork, info, locks))
             return ;
-       if (pthread_create((philosopher + data->idx), NULL, &eating, (void *)&philo[data->idx]))
-        return ;
+        if (info->idx%2 == 1) 
+            ft_wait(10);
+        if (pthread_create((philosopher + info->idx), NULL, &ft_eat_first, (void *)&philo[info->idx]))
+            return ;
     }       
-    // pthread_mutex_unlock(locks->start_lock);
-    data->idx = -1;
-    while (++data->idx < data->tot_philos)
+    info->idx = -1;
+    while (++info->idx < info->tot_philos)
     {
-       if (pthread_join(*(philosopher + data->idx), NULL))
+       if (pthread_join(*(philosopher + info->idx), NULL))
         return ;
     }
-    ft_destroy_mutexes(&fork, &locks);
-    ft_freedata(&locks, &fork, data->tot_philos);
+    ft_destroy_mutexes(&fork, locks, info->tot_philos);
+    ft_freeinfo(&locks, &fork, info->tot_philos);
 }
 

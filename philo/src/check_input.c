@@ -49,13 +49,16 @@ static long long ft_atoll(const char *num)
     return (res * sign);
 }
 
-void ft_save_args(t_data *data, int n_args, char **argv)
+int ft_save_args(t_info *info, int n_args, char **argv)
 {
-    data->idx = -1;
-    data->tot_philos = ft_atoll(argv[1]);
-    data->time_to_die = ft_atoll(argv[2]);
-    data->eating_time = ft_atoll(argv[3]);
-    data->sleeping_time = ft_atoll(argv[4]);
+    info->idx = 0;
+    info->tot_philos = ft_atoll(argv[1]);
+    info->time_to_die = ft_atoll(argv[2]);
+    info->eating_time = ft_atoll(argv[3]);
+    info->sleeping_time = ft_atoll(argv[4]);
+    info->philo_died = 0; 
+    info->start_time = ft_current_time(); 
     if (n_args == 5)
-        data->n_times_eat = ft_atoll(argv[5]);
+        info->n_times_eat = ft_atoll(argv[5]);
+    return (0);
 }
