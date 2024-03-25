@@ -25,10 +25,10 @@ static int ft_isspace(const char c)
         return (1);
     return (0);
 }
-static int ft_atoi(const char *num)
+static long long ft_atoll(const char *num)
 {
-    long res;
-    int sign;
+    long long   res;
+    long long sign;
 
     sign = 1;
     res = 0;
@@ -43,23 +43,19 @@ static int ft_atoi(const char *num)
         return (0);
     while (ft_isdigit(*num))
     {
-        if (res * 10 + (*num - '0') < res)
-        {
-            if (sign == -1)
-                return (0);
-            return (-1);
-        }
-        res += res * 10 + (*(num++) - '0');
+        res *= 10;
+        res += (*(num++) - '0');
     }
     return (res * sign);
 }
 
 void ft_save_args(t_data *data, int n_args, char **argv)
 {
-    data->tot_philos = ft_atoi(argv[1]);
-    data->time_to_die = ft_atoi(argv[2]);
-    data->eating_time = ft_atoi(argv[3]);
-    data->sleeping_time = ft_atoi(argv[4]);
+    data->idx = -1;
+    data->tot_philos = ft_atoll(argv[1]);
+    data->time_to_die = ft_atoll(argv[2]);
+    data->eating_time = ft_atoll(argv[3]);
+    data->sleeping_time = ft_atoll(argv[4]);
     if (n_args == 5)
-        data->n_times_eat = ft_atoi(argv[5]);
+        data->n_times_eat = ft_atoll(argv[5]);
 }

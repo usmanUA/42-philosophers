@@ -29,12 +29,19 @@ typedef struct s_fork
 
 typedef struct s_data
 {
+	int idx;
 	int tot_philos;
-	int time_to_die;
-	int eating_time;
-	int sleeping_time;
+	long long time_to_die;
+	long long eating_time;
+	long long sleeping_time;
 	int n_times_eat;	
 } t_data;
+
+typedef struct s_locks
+{
+	pthread_mutex_t *print_lock;
+	pthread_mutex_t	*start_lock;
+}	t_locks;
 
 typedef struct s_philo
 {
@@ -42,10 +49,7 @@ typedef struct s_philo
 	t_data *data;
 	t_fork *left_fork;
 	t_fork *right_fork;
-	struct timeval start;
-	struct timeval end;
-	pthread_mutex_t	print_lock;
-	pthread_mutex_t start_lock;
+	t_locks	*locks;
 }	t_philo;
 
 
