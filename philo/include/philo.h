@@ -23,13 +23,13 @@
 
 typedef struct s_fork
 {
-	int fork;
-	pthread_mutex_t *fork_lock;
+	pthread_mutex_t fork_lock;
 }	t_fork;
 
 typedef struct s_info
 {
 	int idx;
+	int dead;
 	int tot_philos;
 	int philo_died;
 	int start_time;
@@ -48,6 +48,8 @@ typedef struct s_locks
 
 typedef struct s_philo
 {
+	int idx;
+	int counter;
 	int *phil_num;
 	int *start_time;
 	int *last_eat_time;
@@ -62,6 +64,7 @@ typedef struct s_philo
 
 int	ft_save_args(t_info *info, int n_args, char **argv);
 long long ft_current_time();
+void    ft_wait(long long time);
 void    ft_philos_atwork(t_info *info);
 
 #endif

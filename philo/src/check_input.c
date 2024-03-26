@@ -51,7 +51,8 @@ static long long ft_atoll(const char *num)
 
 int ft_save_args(t_info *info, int n_args, char **argv)
 {
-    info->idx = 0;
+    info->idx = -1;
+    info->dead = 0;
     info->tot_philos = ft_atoll(argv[1]);
     info->time_to_die = ft_atoll(argv[2]);
     info->eating_time = ft_atoll(argv[3]);

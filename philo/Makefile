@@ -7,6 +7,7 @@ RESET = \033[0m
 FILES = src/philosophers.c \
 		src/check_input.c \
 		src/philos_atwork.c \
+		src/philos_utils.c \
 
 # B_FILES = pipex_bonus.c \
 # 		  exec_cmds_bonus.c \

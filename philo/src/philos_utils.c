@@ -12,16 +12,25 @@
 
 #include "../include/philo.h"
 
-void    ft_wait(int time)
+long long ft_current_time()
 {
-    
-}
-int ft_create_forks()
-{
-    
+    struct timeval time_val;
+
+    gettimeofday(&time_val, NULL);
+    return (time_val.tv_sec * 1000 + time_val.tv_usec / 1000);
 }
 
-void    ft_init_mutexes(t_philo *philo)
+void    ft_wait(long long time)
 {
-    
+    long long start;
+    long long end;
+
+    start = ft_current_time(); 
+    end = start + time;
+    while (start < end)
+    {
+        usleep(10);
+        start += ft_current_time(); 
+    }
 }
+
