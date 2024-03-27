@@ -25,10 +25,10 @@ static int ft_isspace(const char c)
         return (1);
     return (0);
 }
-static long long ft_atoll(const char *num)
+static int ft_atoi(const char *num)
 {
-    long long   res;
-    long long sign;
+    long   res;
+    int sign;
 
     sign = 1;
     res = 0;
@@ -49,17 +49,27 @@ static long long ft_atoll(const char *num)
     return (res * sign);
 }
 
-int ft_save_args(t_info *info, int n_args, char **argv)
+void    ft_save_info(t_info *info, int argc, char **argv)
 {
-    info->idx = -1;
-    info->dead = 0;
-    info->tot_philos = ft_atoll(argv[1]);
-    info->time_to_die = ft_atoll(argv[2]);
-    info->eating_time = ft_atoll(argv[3]);
-    info->sleeping_time = ft_atoll(argv[4]);
+    pthread_mutex_t print_lock;
+
+    pthread_mutex_init(&print_lock, NULL);
+    info->tot_philos = ft_atoi(argv[1]);
+    info->time_to_die = ft_atoi(argv[2]);
+    info->eating_time = ft_atoi(argv[3]);
+    info->sleeping_time = ft_atoi(argv[4]);
+    // write(1, "here\n", 5);
+    if (argc == 6)
+        info->n_times_eat = ft_atoi(argv[5]);
     info->philo_died = 0; 
     info->start_time = ft_current_time(); 
-    if (n_args == 5)
-        info->n_times_eat = ft_atoll(argv[5]);
-    return (0);
+    info->print_lock = print_lock;
+    ft_init_forks(info);
 }
+
+void    ft_philo_init(t_philo *philo)
+{
+    memset(philo->args, 0, sizeof(philo->args));
+    philo->idx = -1;
+}
+
