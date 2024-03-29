@@ -81,13 +81,41 @@ void    ft_think(t_args *args)
     ft_thinking_msg(args);
 }
 
-void    ft_monitor_time(t_args *args)
+void    ft_monitor_time(t_args *args, int wait)
 {
-    if (args->counter[*args->phil_num-1] > args->info->time_to_die)
+    if (*args->start)
     {
-        ft_death_msg(args);
-        args->info->philo_died = 1;
+        *args->start = 0;
+        *args->start_counter = ft_current_time() - args->info->start_time;
+        if (*args->start_counter < args->info->time_to_die)
+            return ;
     }
+    else
+    {
+        if (wait)
+            ft_wait(args->info->last_eat);
+        *args->counter = ft_current_time() - *args->current_time;
+        if (*args->counter < args->info->time_to_die)
+            return ;
+    }
+    if (!*args->philo_died)
+        ft_death_msg(args);
+    args->info->philo_died = 1;
+}
+
+int ft_stop_simulation(t_args *args, int wait, int unlock)
+{
+    ft_monitor_time(args, wait);
+    if (*args->philo_died)
+    {
+        if (unlock)
+        {
+            pthread_mutex_unlock(args->left_fork);
+            pthread_mutex_unlock(args->right_fork);
+        }
+        return (1);
+    }
+    return (0);
 }
 
 void *ft_eating(void *arg)
@@ -95,35 +123,49 @@ void *ft_eating(void *arg)
     t_args *args;
 
     args = (t_args *)arg;
+    if (*(args->phil_num)%2 == 0)
+        ft_wait(10);
     while (1)
     {
-        pthread_mutex_lock(args->right_fork);
-        ft_fork_taken(args);
         pthread_mutex_lock(args->left_fork);
         ft_fork_taken(args);
-        ft_monitor_time(args);
-        if (*args->philo_died)
+        pthread_mutex_lock(args->right_fork);
+        ft_fork_taken(args);
+        if (ft_stop_simulation(args, 0, 1))
             break ;
-        ft_eat(args);
-        pthread_mutex_unlock(args->right_fork);
+        *args->current_time = ft_current_time();
+        ft_eat(args); 
         pthread_mutex_unlock(args->left_fork);
+        pthread_mutex_unlock(args->right_fork);
+        if (ft_stop_simulation(args, 0, 0))
+            break ;
         ft_sleep(args);
+        if (ft_stop_simulation(args, 0, 0))
+            break ;
         ft_think(args);
+        if (ft_stop_simulation(args, 1, 0))
+            break ;
     }
     return (NULL);
 }
 
-static void ft_parse(t_args *args, t_info *info, int index)
+static void ft_parse(t_args *args, t_info *info, t_philo *philo)
 {
     args->info = info;
-    args->phil_num = &index+1; 
+    philo->phil_num[philo->idx] = philo->idx+1; 
+    args->phil_num = &philo->phil_num[philo->idx]; 
+    args->counter = &philo->counter[philo->idx]; 
+    args->start_counter = &philo->start_counter[philo->idx]; 
+    args->start = &philo->start[philo->idx]; 
+    args->current_time= &philo->current_time[philo->idx]; 
     args->philo_died = &info->philo_died;
-    if (index == 0)
-        args->left_fork = &info->fork[info->tot_philos-1];
+    if (philo->idx == 0)
+        args->right_fork = &info->fork[info->tot_philos-1];
     else
-        args->left_fork = &info->fork[index-1];
-    args->right_fork = &info->fork[index];
+        args->right_fork = &info->fork[philo->idx-1];
+    args->left_fork = &info->fork[philo->idx];
     args->print_lock= &info->print_lock;
+    args->stop_lock= &info->stop_lock;
 }
 
 void    ft_init_forks(t_info *info)
@@ -150,21 +192,17 @@ void    ft_philos_atwork(t_philo *philo, t_info *info)
 {
     while (++philo->idx < info->tot_philos)
     {
-        ft_parse(&philo->args[philo->idx], info, philo->idx);
-        if (philo->idx+1%2 == 0) 
-        {
-            write(1, "here\n", 5);
-            ft_wait(10);
-        }
+        ft_parse(&philo->args[philo->idx], info, philo);
         if (pthread_create(&philo->philosophers[philo->idx], NULL, &ft_eating, (void *)&philo->args[philo->idx]))
+        {
             return ;
+        }
     }       
     philo->idx = -1;
     while (++philo->idx < info->tot_philos)
     {
        if (pthread_join(philo->philosophers[philo->idx], NULL))
         return ;
-       write(1, "here\n", 5);
     }
     ft_destroy_mutexes(info);
 }

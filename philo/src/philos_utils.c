@@ -12,7 +12,7 @@
 
 #include "../include/philo.h"
 
-long long ft_current_time()
+long ft_current_time()
 {
     struct timeval time_val;
 
@@ -20,17 +20,13 @@ long long ft_current_time()
     return (time_val.tv_sec * 1000 + time_val.tv_usec / 1000);
 }
 
-void    ft_wait(long long time)
+void    ft_wait(long time)
 {
-    long long start;
-    long long end;
+    long end;
 
-    start = ft_current_time(); 
-    end = start + time;
-    while (start < end)
-    {
+    ft_current_time(); 
+    end = ft_current_time() + time; 
+    while (ft_current_time() < end)
         usleep(10);
-        start += ft_current_time(); 
-    }
 }
 
