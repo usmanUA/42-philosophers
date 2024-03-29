@@ -30,3 +30,42 @@ void    ft_wait(long time)
         usleep(10);
 }
 
+void    ft_init_forks(t_info *info)
+{
+    int ind;
+
+    ind = -1;
+    while (++ind < info->tot_philos)
+        pthread_mutex_init(&info->fork[ind], NULL);
+}
+
+
+void    ft_destroy_mutexes(t_info *info)
+{
+    int ind;
+
+    ind = -1;
+    while (++ind < info->tot_philos)
+        pthread_mutex_destroy(&info->fork[ind]);
+    pthread_mutex_destroy(&(info->print_lock));
+}
+
+void ft_parse(t_args *args, t_info *info, t_philo *philo)
+{
+    args->info = info;
+    philo->phil_num[philo->idx] = philo->idx+1; 
+    args->phil_num = &philo->phil_num[philo->idx]; 
+    args->time_counter = &philo->time_counter[philo->idx]; 
+    args->meal_counter = &philo->meal_counter[philo->idx]; 
+    args->start_counter = &philo->start_counter[philo->idx]; 
+    args->start = &philo->start[philo->idx]; 
+    args->current_time= &philo->current_time[philo->idx]; 
+    args->philo_died = &info->philo_died;
+    if (philo->idx == 0)
+        args->right_fork = &info->fork[info->tot_philos-1];
+    else
+        args->right_fork = &info->fork[philo->idx-1];
+    args->left_fork = &info->fork[philo->idx];
+    args->print_lock= &info->print_lock;
+    args->stop_lock= &info->stop_lock;
+}
