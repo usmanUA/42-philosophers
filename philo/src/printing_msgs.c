@@ -1,7 +1,7 @@
 
 #include "../include/philo.h"
 
-void    ft_fork_taken(t_args *args)
+void    ft_fork_msg(t_args *args)
 {
     int time;
 

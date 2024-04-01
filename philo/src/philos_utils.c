@@ -68,4 +68,10 @@ void ft_parse(t_args *args, t_info *info, t_philo *philo)
     args->left_fork = &info->fork[philo->idx];
     args->print_lock= &info->print_lock;
     args->stop_lock= &info->stop_lock;
+    args->left_fork_taken = &info->left_fork_taken;
+    args->right_fork_taken = &info->right_fork_taken;
+    args->eaten = &info->eaten;
+    args->slept = &info->slept;
+    args->thought = &info->thought;
+    args->died = &info->died;
 }

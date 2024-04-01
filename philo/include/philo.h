@@ -31,6 +31,12 @@ typedef struct s_info
 	int last_meal;
 	int philo_died;
 	long start_time;
+	int left_fork_taken;
+	int right_fork_taken;
+	int eaten;
+	int slept;
+	int thought;
+	int died;
 	pthread_mutex_t fork[200];
 	pthread_mutex_t	print_lock;
 	pthread_mutex_t	stop_lock;
@@ -46,6 +52,12 @@ typedef struct s_args
 	int *phil_num;
 	int *philo_died;
 	t_info *info;
+	int *left_fork_taken;
+	int *right_fork_taken;
+	int *eaten;
+	int *slept;
+	int *thought;
+	int *died;
 	pthread_mutex_t *left_fork;
 	pthread_mutex_t *right_fork;
 	pthread_mutex_t	*print_lock;
@@ -66,6 +78,7 @@ typedef struct s_philo
 }	t_philo;
 
 /* ************ PRINTING MESSAGES *************** */
+void    ft_fork_msg(t_args *args);
 void    ft_eating_msg(t_args *args);
 void    ft_fork_taken(t_args *args);
 void    ft_death_msg(t_args *args);

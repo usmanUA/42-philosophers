@@ -16,6 +16,7 @@
 static void    ft_handle_one(t_args *args)
 {
     pthread_mutex_lock(args->left_fork);
+    ft_fork_msg(args);
     ft_wait(args->info->time_to_die);
     ft_death_msg(args);
     pthread_mutex_unlock(args->left_fork);
@@ -37,9 +38,9 @@ static void *ft_eating(void *arg)
     while (1)
     {
         pthread_mutex_lock(args->left_fork);
-        ft_fork_taken(args);
+        *args->left_fork_taken = 1;
         pthread_mutex_lock(args->right_fork);
-        ft_fork_taken(args);
+        *args->right_fork_taken = 1;
         if (ft_stop_simulation(args, 0, 1))
             break ;
         *args->current_time = ft_current_time();
@@ -61,8 +62,82 @@ static void *ft_eating(void *arg)
 
 static void *ft_print_func(void *arg)
 {
+    t_args *args;
+    int ind;
 
+    args = (t_args *)arg;
+    ind = -1;
+    while (1)
+    {
+        ind = -1;
+        while (++ind < args[0].info->tot_philos)
+        {
+            if (*args[ind].left_fork_taken)
+            {
+                ft_fork_msg(&args[ind]);
+                *args[ind].left_fork_taken = 0;
+            }
+            if (*args[ind].right_fork_taken)
+            {
+                ft_fork_msg(&args[ind]);
+                *args[ind].right_fork_taken = 0;
+            }
+            if (*args[ind].eaten)
+            {
+                ft_eating_msg(&args[ind]);
+                *args[ind].eaten = 0;
+            }
+            if (*args[ind].slept)
+            {
+                ft_sleeping_msg(&args[ind]);
+                *args[ind].slept = 0;
+            }
+            if (*args[ind].thought)
+            {
+                ft_thinking_msg(&args[ind]);
+                *args[ind].thought = 0;
+            }
+            if (*args[ind].died)
+            {
+                ft_death_msg(&args[ind]);
+                *args[ind].died = 0;
+                break ;
+            }
+        }
+    }
     return (NULL);
+}
+
+void    ft_parse_again(t_philo *philo, t_info *info)
+{
+    int ind;
+    ind = -1;
+    while (++ind < info->tot_philos)
+    {
+        philo->args[ind].info = info;
+        philo->phil_num[philo->idx] = philo->idx+1; 
+        philo->args[ind].phil_num = &philo->phil_num[philo->idx]; 
+        philo->args[ind].time_counter = &philo->time_counter[philo->idx]; 
+        philo->args[ind].meal_counter = &philo->meal_counter[philo->idx]; 
+        philo->args[ind].start_counter = &philo->start_counter[philo->idx]; 
+        philo->args[ind].start = &philo->start[philo->idx]; 
+        philo->args[ind].current_time= &philo->current_time[philo->idx]; 
+        philo->args[ind].philo_died = &info->philo_died;
+        if (philo->idx == 0)
+            philo->args[ind].right_fork = &info->fork[info->tot_philos-1];
+        else
+            philo->args[ind].right_fork = &info->fork[philo->idx-1];
+        philo->args[ind].left_fork = &info->fork[philo->idx];
+        philo->args[ind].print_lock= &info->print_lock;
+        philo->args[ind].stop_lock= &info->stop_lock;
+        philo->args[ind].left_fork_taken = &info->left_fork_taken;
+        philo->args[ind].right_fork_taken = &info->right_fork_taken;
+        philo->args[ind].eaten = &info->eaten;
+        philo->args[ind].slept = &info->slept;
+        philo->args[ind].thought = &info->thought;
+        philo->args[ind].died = &info->died;
+    }
+
 }
 
 void    ft_philos_atwork(t_philo *philo, t_info *info)
@@ -81,8 +156,11 @@ void    ft_philos_atwork(t_philo *philo, t_info *info)
        if (pthread_join(philo->philosophers[philo->idx], NULL))
         return ;
     }
-    philo->args[philo->idx].info = info;
-    if (pthread_create(&print_thread, NULL, &ft_print_func, (void *)&philo->args[philo->idx]))
+    ft_parse_again(philo, info);
+    printf("tot_philos %d coming directly from info\n", info->tot_philos);
+    printf("tot_philos %d coming indirectly from info\n", philo->args[0].info->tot_philos);
+    write(1, "here\n", 5);
+    if (pthread_create(&print_thread, NULL, &ft_print_func, (void *)philo->args))
         return ;
     if (pthread_join(print_thread, NULL))
         return ;

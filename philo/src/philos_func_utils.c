@@ -3,20 +3,20 @@
 
 void    ft_eat(t_args *args)
 {
-    ft_eating_msg(args);
+    *args->eaten = 1;
     *args->meal_counter += 1;
     ft_wait(args->info->eating_time);
 }
 
 void    ft_sleep(t_args *args)
 {
-    ft_sleeping_msg(args);
+    *args->slept = 1;
     ft_wait(args->info->sleeping_time);
 }
 
 void    ft_think(t_args *args)
 {
-    ft_thinking_msg(args);
+    *args->thought = 1;
 }
 
 void    ft_monitor_time(t_args *args, int wait)
@@ -37,7 +37,7 @@ void    ft_monitor_time(t_args *args, int wait)
             return ;
     }
     if (!*args->philo_died)
-        ft_death_msg(args);
+        *args->died = 1;
     args->info->philo_died = 1;
 }
 

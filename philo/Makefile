@@ -8,6 +8,8 @@ FILES = src/philosophers.c \
 		src/check_input.c \
 		src/philos_atwork.c \
 		src/philos_utils.c \
+		src/philos_func_utils.c \
+		src/printing_msgs.c \
 
 # B_FILES = pipex_bonus.c \
 # 		  exec_cmds_bonus.c \

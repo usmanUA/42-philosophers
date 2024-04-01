@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "../include/philo.h"
+#include <string.h>
 
 static int ft_isspace(const char c)
 {
@@ -82,6 +83,12 @@ void    ft_save_info(t_info *info)
     info->start_time = ft_current_time(); 
     info->print_lock = print_lock;
     info->stop_lock = stop_lock;
+    info->left_fork_taken = 0;
+    info->right_fork_taken = 0;
+    info->eaten = 0;
+    info->slept = 0;
+    info->thought = 0;
+    info->died = 0;
     ft_init_forks(info);
 }
 
