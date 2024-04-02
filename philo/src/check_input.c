@@ -83,12 +83,6 @@ void    ft_save_info(t_info *info)
     info->start_time = ft_current_time(); 
     info->print_lock = print_lock;
     info->stop_lock = stop_lock;
-    info->left_fork_taken = 0;
-    info->right_fork_taken = 0;
-    info->eaten = 0;
-    info->slept = 0;
-    info->thought = 0;
-    info->died = 0;
     ft_init_forks(info);
 }
 
@@ -96,11 +90,8 @@ void    ft_philo_init(t_philo *philo)
 {
     memset(philo->args, 0, sizeof(philo->args));
     memset(philo->phil_num, 0, sizeof(philo->phil_num));
-    memset(philo->time_counter, 0, sizeof(philo->time_counter));
-    memset(philo->meal_counter, 0, sizeof(philo->meal_counter));
-    memset(philo->start_counter, 0, sizeof(philo->start_counter));
-    memset(philo->start, 1, sizeof(philo->start));
-    memset(philo->current_time, 1, sizeof(philo->current_time));
+    memset(philo->time, 0, sizeof(philo->time));
+    memset(philo->log, 0, sizeof(philo->log));
     philo->idx = -1;
 }
 

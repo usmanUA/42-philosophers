@@ -38,12 +38,15 @@ static void *ft_eating(void *arg)
     while (1)
     {
         pthread_mutex_lock(args->left_fork);
-        *args->left_fork_taken = 1;
+        *args->log->left_fork_taken = 1;
+        *args->log->left_fork_taken_time = ft_current_time() - args->info->start_time;
         pthread_mutex_lock(args->right_fork);
-        *args->right_fork_taken = 1;
+        *args->log->right_fork_taken = 1;
+        *args->log->right_fork_taken_time = ft_current_time() - args->info->start_time;
         if (ft_stop_simulation(args, 0, 1))
             break ;
-        *args->current_time = ft_current_time();
+        /* write(1, "here\n", 5); */
+        *args->time->current_time = ft_current_time();
         ft_eat(args); 
         pthread_mutex_unlock(args->left_fork);
         pthread_mutex_unlock(args->right_fork);
@@ -64,80 +67,76 @@ static void *ft_print_func(void *arg)
 {
     t_args *args;
     int ind;
+    int stop;
 
     args = (t_args *)arg;
     ind = -1;
+    stop = 0;
     while (1)
     {
+        /* write(1, "here\n", 5); */
         ind = -1;
         while (++ind < args[0].info->tot_philos)
         {
-            if (*args[ind].left_fork_taken)
+            if (*args[ind].log->left_fork_taken)
             {
                 ft_fork_msg(&args[ind]);
-                *args[ind].left_fork_taken = 0;
+                *args[ind].log->left_fork_taken = 0;
             }
-            if (*args[ind].right_fork_taken)
+            if (*args[ind].log->right_fork_taken)
             {
                 ft_fork_msg(&args[ind]);
-                *args[ind].right_fork_taken = 0;
+                *args[ind].log->right_fork_taken = 0;
             }
-            if (*args[ind].eaten)
+            if (*args[ind].log->eaten)
             {
                 ft_eating_msg(&args[ind]);
-                *args[ind].eaten = 0;
+                *args[ind].log->eaten = 0;
             }
-            if (*args[ind].slept)
+            if (*args[ind].log->slept)
             {
                 ft_sleeping_msg(&args[ind]);
-                *args[ind].slept = 0;
+                *args[ind].log->slept = 0;
             }
-            if (*args[ind].thought)
+            if (*args[ind].log->thought)
             {
                 ft_thinking_msg(&args[ind]);
-                *args[ind].thought = 0;
+                *args[ind].log->thought = 0;
             }
-            if (*args[ind].died)
+            if (*args[ind].log->died)
             {
                 ft_death_msg(&args[ind]);
-                *args[ind].died = 0;
+                *args[ind].log->died = 0;
+                stop = 1;
                 break ;
             }
+            if (stop)
+                break ;
         }
     }
     return (NULL);
 }
 
-void    ft_parse_again(t_philo *philo, t_info *info)
+void    ft_free(t_args *args, t_info *info)
 {
     int ind;
+
     ind = -1;
     while (++ind < info->tot_philos)
     {
-        philo->args[ind].info = info;
-        philo->phil_num[philo->idx] = philo->idx+1; 
-        philo->args[ind].phil_num = &philo->phil_num[philo->idx]; 
-        philo->args[ind].time_counter = &philo->time_counter[philo->idx]; 
-        philo->args[ind].meal_counter = &philo->meal_counter[philo->idx]; 
-        philo->args[ind].start_counter = &philo->start_counter[philo->idx]; 
-        philo->args[ind].start = &philo->start[philo->idx]; 
-        philo->args[ind].current_time= &philo->current_time[philo->idx]; 
-        philo->args[ind].philo_died = &info->philo_died;
-        if (philo->idx == 0)
-            philo->args[ind].right_fork = &info->fork[info->tot_philos-1];
-        else
-            philo->args[ind].right_fork = &info->fork[philo->idx-1];
-        philo->args[ind].left_fork = &info->fork[philo->idx];
-        philo->args[ind].print_lock= &info->print_lock;
-        philo->args[ind].stop_lock= &info->stop_lock;
-        philo->args[ind].left_fork_taken = &info->left_fork_taken;
-        philo->args[ind].right_fork_taken = &info->right_fork_taken;
-        philo->args[ind].eaten = &info->eaten;
-        philo->args[ind].slept = &info->slept;
-        philo->args[ind].thought = &info->thought;
-        philo->args[ind].died = &info->died;
+       free(args[ind].log->died); 
+       free(args[ind].log->died_time); 
+       free(args[ind].log->eaten); 
+       free(args[ind].log->eaten_time); 
+       free(args[ind].log->slept); 
+       free(args[ind].log->slept_time); 
+       free(args[ind].log->thought); 
+       free(args[ind].log->thought_time); 
+       free(args[ind].log->left_fork_taken); 
+       free(args[ind].log->left_fork_taken_time); 
+       free(args[ind].log->right_fork_taken); 
+       free(args[ind].log->right_fork_taken_time); 
     }
-
 }
 
 void    ft_philos_atwork(t_philo *philo, t_info *info)
@@ -146,7 +145,8 @@ void    ft_philos_atwork(t_philo *philo, t_info *info)
 
     while (++philo->idx < info->tot_philos)
     {
-        ft_parse(&philo->args[philo->idx], info, philo);
+        if (!ft_parse(&philo->args[philo->idx], info, philo))
+            return ;
         if (pthread_create(&philo->philosophers[philo->idx], NULL, &ft_eating, (void *)&philo->args[philo->idx]))
             return ;
     }       
@@ -156,14 +156,12 @@ void    ft_philos_atwork(t_philo *philo, t_info *info)
        if (pthread_join(philo->philosophers[philo->idx], NULL))
         return ;
     }
-    ft_parse_again(philo, info);
-    printf("tot_philos %d coming directly from info\n", info->tot_philos);
-    printf("tot_philos %d coming indirectly from info\n", philo->args[0].info->tot_philos);
     write(1, "here\n", 5);
     if (pthread_create(&print_thread, NULL, &ft_print_func, (void *)philo->args))
         return ;
     if (pthread_join(print_thread, NULL))
         return ;
+    ft_free(philo->args, info);
     ft_destroy_mutexes(info);
 }
 

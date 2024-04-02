@@ -31,33 +31,43 @@ typedef struct s_info
 	int last_meal;
 	int philo_died;
 	long start_time;
-	int left_fork_taken;
-	int right_fork_taken;
-	int eaten;
-	int slept;
-	int thought;
-	int died;
 	pthread_mutex_t fork[200];
 	pthread_mutex_t	print_lock;
 	pthread_mutex_t	stop_lock;
 } t_info;
 
-typedef struct s_args
+typedef struct s_time
 {
 	int *time_counter;
 	int *meal_counter;
 	int *start_counter;
 	int *start;
 	long *current_time;
+} t_time;
+
+typedef struct s_log
+{
+	int *left_fork_taken;
+	int *left_fork_taken_time;
+	int *right_fork_taken;
+	int *right_fork_taken_time;
+	int *eaten;
+	int *eaten_time;
+	int *slept;
+	int *slept_time;
+	int *thought;
+	int *thought_time;
+	int *died;
+	int *died_time;
+} t_log;
+
+typedef struct s_args
+{
 	int *phil_num;
 	int *philo_died;
 	t_info *info;
-	int *left_fork_taken;
-	int *right_fork_taken;
-	int *eaten;
-	int *slept;
-	int *thought;
-	int *died;
+	t_time *time;
+	t_log	*log;
 	pthread_mutex_t *left_fork;
 	pthread_mutex_t *right_fork;
 	pthread_mutex_t	*print_lock;
@@ -68,12 +78,9 @@ typedef struct s_philo
 {
 	pthread_t philosophers[200];
 	t_args args[200];
+	t_time time[200];
+	t_log log[200];
 	int phil_num[200];
-	int meal_counter[200];
-	int time_counter[200];
-	int start_counter[200];
-	int start[200];
-	long current_time[200];
 	int idx;
 }	t_philo;
 
@@ -92,7 +99,7 @@ int ft_valid_args(int argc, char **argv, t_info *info);
 void	ft_save_info(t_info *info);
 
 /* ************ PARSING *************** */
-void ft_parse(t_args *args, t_info *info, t_philo *philo);
+int ft_parse(t_args *args, t_info *info, t_philo *philo);
 
 /* ************ PHILOS AT WORK *************** */
 void	ft_philo_init(t_philo *philo);

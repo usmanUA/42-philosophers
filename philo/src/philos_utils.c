@@ -48,18 +48,80 @@ void    ft_destroy_mutexes(t_info *info)
     while (++ind < info->tot_philos)
         pthread_mutex_destroy(&info->fork[ind]);
     pthread_mutex_destroy(&(info->print_lock));
+    pthread_mutex_destroy(&(info->stop_lock));
 }
 
-void ft_parse(t_args *args, t_info *info, t_philo *philo)
+int ft_allocatetime(t_args *args)
+{
+    args->time->time_counter = (int *)malloc(sizeof(int));
+    if (!args->time->time_counter)
+        return (0);
+    args->time->meal_counter = (int *)malloc(sizeof(int));
+    if (!args->time->meal_counter)
+        return (0);
+    args->time->start_counter = (int *)malloc(sizeof(int));
+    if (!args->time->start_counter)
+        return (0);
+    args->time->start = (int *)malloc(sizeof(int));
+    if (!args->time->start)
+        return (0);
+    args->time->current_time = (long *)malloc(sizeof(int));
+    if (!args->time->current_time)
+        return (0);
+    return (1);
+}
+
+int ft_allocatelog(t_args *args)
+{
+    args->log->eaten = (int *)malloc(sizeof(int));
+    if (!args->log->eaten)
+        return (0);
+    args->log->eaten_time = (int *)malloc(sizeof(int));
+    if (!args->log->eaten_time)
+        return (0);
+    args->log->slept = (int *)malloc(sizeof(int));
+    if (!args->log->slept)
+        return (0);
+    args->log->slept_time = (int *)malloc(sizeof(int));
+    if (!args->log->slept_time)
+        return (0);
+    args->log->thought = (int *)malloc(sizeof(int));
+    if (!args->log->thought)
+        return (0);
+    args->log->thought_time = (int *)malloc(sizeof(int));
+    if (!args->log->thought_time)
+        return (0);
+    args->log->died = (int *)malloc(sizeof(int));
+    if (!args->log->died)
+        return (0);
+    args->log->died_time = (int *)malloc(sizeof(int));
+    if (!args->log->died_time)
+        return (0);
+    args->log->left_fork_taken = (int *)malloc(sizeof(int));
+    if (!args->log->left_fork_taken)
+        return (0);
+    args->log->left_fork_taken_time = (int *)malloc(sizeof(int));
+    if (!args->log->left_fork_taken_time)
+        return (0);
+    args->log->right_fork_taken = (int *)malloc(sizeof(int));
+    if (!args->log->right_fork_taken)
+        return (0);
+    args->log->right_fork_taken_time = (int *)malloc(sizeof(int));
+    if (!args->log->right_fork_taken_time)
+        return (0);
+    return (1);
+}
+int ft_parse(t_args *args, t_info *info, t_philo *philo)
 {
     args->info = info;
+    args->time = &philo->time[philo->idx];
+    if (!ft_allocatetime(args))
+        return (0);
+    args->log = &philo->log[philo->idx];
+    if (!ft_allocatelog(args))
+        return (0);
     philo->phil_num[philo->idx] = philo->idx+1; 
     args->phil_num = &philo->phil_num[philo->idx]; 
-    args->time_counter = &philo->time_counter[philo->idx]; 
-    args->meal_counter = &philo->meal_counter[philo->idx]; 
-    args->start_counter = &philo->start_counter[philo->idx]; 
-    args->start = &philo->start[philo->idx]; 
-    args->current_time= &philo->current_time[philo->idx]; 
     args->philo_died = &info->philo_died;
     if (philo->idx == 0)
         args->right_fork = &info->fork[info->tot_philos-1];
@@ -68,10 +130,5 @@ void ft_parse(t_args *args, t_info *info, t_philo *philo)
     args->left_fork = &info->fork[philo->idx];
     args->print_lock= &info->print_lock;
     args->stop_lock= &info->stop_lock;
-    args->left_fork_taken = &info->left_fork_taken;
-    args->right_fork_taken = &info->right_fork_taken;
-    args->eaten = &info->eaten;
-    args->slept = &info->slept;
-    args->thought = &info->thought;
-    args->died = &info->died;
+    return (1);
 }
