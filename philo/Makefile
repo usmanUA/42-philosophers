@@ -1,5 +1,6 @@
 flags = -Wall -Wextra -Werror
 NAME = philo
+SAN = -fsanitize=thread 
 GREEN = \033[0;32m
 RED = \033[0;31m
 RESET = \033[0m
@@ -27,10 +28,10 @@ OBJS = $(FILES:.c=.o)
 all: $(NAME)
 
 $(NAME): $(OBJS) $(LIBFT)
-	@(echo "$(GREEN)Creating The Executable:   $(NAME)$(RESET)" && cc $(OBJS) -o $(NAME))
+	@(echo "$(GREEN)Creating The Executable:   $(NAME)$(RESET)" && cc $(SAN) $(OBJS) -o $(NAME))
 	
 %.o: %.c
-	@(echo "$(GREEN)Creating Object File: $@$(RESET)" && cc $(flags) -c $< -o $@)
+	@(echo "$(GREEN)Creating Object File: $@$(RESET)" && cc $(SAN) $(flags) -c $< -o $@) 
 	
 # bonus: $(B_OBJS) $(LIBFT)
 # 	@(echo "$(GREEN)Creating The Executable:   $(NAME)$(RESET)" && cc $(B_OBJS) libft/$(LIBFT) -o $(NAME))

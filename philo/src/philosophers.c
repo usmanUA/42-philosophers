@@ -13,11 +13,11 @@
 #include "../include/philo.h"
 #include <stdio.h>
 
-int main(int argc, char **argv)
+int	main(int argc, char **argv)
 {
 	t_philo	philo;
 	t_info	info;
-	
+
 	if ((argc == 5 || argc == 6) && ft_valid_args(argc, argv, &info))
 	{
 		ft_save_info(&info);
