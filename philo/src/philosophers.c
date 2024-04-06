@@ -3,15 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   philosophers.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: uahmed <uahmed@student.42.fr>              +#+  +:+       +#+        */
+/*   By: uahmed <uahmed@student.hive.fi>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/14 16:03:10 by uahmed            #+#    #+#             */
-/*   Updated: 2024/03/22 14:31:41 by uahmed           ###   ########.fr       */
+/*   Created: 2024/04/03 13:19:59 by uahmed            #+#    #+#             */
+/*   Updated: 2024/04/03 13:20:01 by uahmed           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philo.h"
-#include <stdio.h>
 
 int	main(int argc, char **argv)
 {
