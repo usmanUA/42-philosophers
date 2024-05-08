@@ -9,8 +9,25 @@
 /*   Updated: 2024/04/03 13:17:50 by uahmed           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
 #include "../include/philo.h"
+
+void	ft_eat(t_args *args)
+{
+	ft_eating_msg(args);
+	if (args->info->n_times_eat)
+	{
+		pthread_mutex_lock(args->meal_counter_lock);
+		*args->meal_counter += 1;
+		pthread_mutex_unlock(args->meal_counter_lock);
+	}
+	ft_wait(args->info->eating_time);
+}
+
+void	ft_sleep(t_args *args)
+{
+	ft_sleeping_msg(args);
+	ft_wait(args->info->sleeping_time);
+}
 
 long	ft_current_time(void)
 {
@@ -25,8 +42,10 @@ void	ft_wait(long time)
 	long	end;
 
 	end = ft_current_time() + time;
+	if (time > 10)
+		usleep((time - 10) * 1000);
 	while (ft_current_time() < end)
-		usleep(500);
+		usleep(1000);
 }
 
 void	ft_destroy_mutexes(t_info *info)
@@ -43,44 +62,6 @@ void	ft_destroy_mutexes(t_info *info)
 	while (++ind < info->tot_philos)
 		pthread_mutex_destroy(&info->meal_counter_lock[ind]);
 	pthread_mutex_destroy(&(info->print_lock));
-	pthread_mutex_destroy(&(info->stop_lock));
+	pthread_mutex_destroy(&(info->death_lock));
 }
 
-void	ft_parse(t_args *args, t_info *info, t_philo *philo)
-{
-	args->info = info;
-	philo->phil_num[philo->idx] = philo->idx + 1;
-	args->phil_num = &philo->phil_num[philo->idx];
-	args->philo_died = &info->philo_died;
-	args->philo_full = &info->philo_full;
-	args->meal_counter = &philo->meal_counter[philo->idx];
-	args->have_eaten = &philo->have_eaten[philo->idx];
-	if (philo->idx == 0)
-		args->right_fork = &info->fork[info->tot_philos - 1];
-	else
-		args->right_fork = &info->fork[philo->idx - 1];
-	args->left_fork = &info->fork[philo->idx];
-	args->print_lock = &info->print_lock;
-	args->stop_lock = &info->stop_lock;
-	args->eating_lock = &info->eating_lock[philo->idx];
-	args->meal_counter_lock = &info->meal_counter_lock[philo->idx];
-}
-
-void	ft_check_meal_status(t_args *args, t_monitor *mon)
-{
-	pthread_mutex_lock(args->eating_lock);
-	if (*args->have_eaten)
-	{
-		*args->have_eaten = 0;
-		mon->last_meal_time[mon->ind] = ft_current_time()
-			- args->info->start_time;
-		if (args->info->n_times_eat)
-		{
-			pthread_mutex_lock(args->meal_counter_lock);
-			if (*args->meal_counter >= args->info->n_times_eat)
-				mon->philos_full[mon->ind] = 1;
-			pthread_mutex_unlock(args->meal_counter_lock);
-		}
-	}
-	pthread_mutex_unlock(args->eating_lock);
-}

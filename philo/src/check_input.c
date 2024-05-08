@@ -3,7 +3,8 @@
 /*                                                        :::      ::::::::   */
 /*   check_input.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: uahmed <uahmed@student.hive.fi>            +#+  +:+       +#+        */
+/*   By: uahmed <=uahmed@student.hive.fi>            +#+  +:+      
+	+#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/03 13:17:25 by uahmed            #+#    #+#             */
 /*   Updated: 2024/04/03 13:17:30 by uahmed           ###   ########.fr       */
@@ -11,6 +12,7 @@
 /* ************************************************************************** */
 
 #include "../include/philo.h"
+#include <stdio.h>
 
 static int	ft_isspace(const char c)
 {
@@ -73,12 +75,10 @@ int	ft_valid_args(int argc, char **argv, t_info *info)
 
 void	ft_save_info(t_info *info)
 {
-	int				ind;
-	pthread_mutex_t	print_lock;
-	pthread_mutex_t	stop_lock;
+	int	ind;
 
-	pthread_mutex_init(&print_lock, NULL);
-	pthread_mutex_init(&stop_lock, NULL);
+	pthread_mutex_init(&info->print_lock, NULL);
+	pthread_mutex_init(&info->death_lock, NULL);
 	ind = -1;
 	while (++ind < info->tot_philos)
 		pthread_mutex_init(&info->eating_lock[ind], NULL);
@@ -88,11 +88,9 @@ void	ft_save_info(t_info *info)
 	ind = -1;
 	while (++ind < info->tot_philos)
 		pthread_mutex_init(&info->fork[ind], NULL);
-	info->philo_died = 0;
-	info->philo_full = 0;
+	info->philo_died = NO;
+	info->philo_full = NO;
 	info->start_time = ft_current_time();
-	info->print_lock = print_lock;
-	info->stop_lock = stop_lock;
 }
 
 void	ft_philo_init(t_philo *philo)
@@ -100,6 +98,6 @@ void	ft_philo_init(t_philo *philo)
 	memset(philo->args, 0, sizeof(philo->args));
 	memset(philo->phil_num, 0, sizeof(philo->phil_num));
 	memset(philo->meal_counter, 0, sizeof(philo->meal_counter));
-	memset(philo->have_eaten, 0, sizeof(philo->have_eaten));
+	memset(philo->have_eaten, NO, sizeof(philo->have_eaten));
 	philo->idx = -1;
 }

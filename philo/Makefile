@@ -8,7 +8,7 @@ FILES = src/philosophers.c \
 		src/check_input.c \
 		src/philos_atwork.c \
 		src/philos_utils.c \
-		src/philos_func_utils.c \
+		src/monitor.c \
 		src/printing_msgs.c \
 
 OBJS = $(FILES:.c=.o)
@@ -16,10 +16,10 @@ OBJS = $(FILES:.c=.o)
 all: $(NAME)
 
 $(NAME): $(OBJS) $(LIBFT)
-	@(echo "$(GREEN)Creating The Executable:   $(NAME)$(RESET)" && cc -fsanitize=thread $(OBJS) -o $(NAME))
+	@(echo "$(GREEN)Creating The Executable:   $(NAME)$(RESET)" && cc $(OBJS) -o $(NAME))
 	
 %.o: %.c
-	@(echo "$(GREEN)Creating Object File: $@$(RESET)" && cc -g -fsanitize=thread $(flags) -c $< -o $@) 
+	@(echo "$(GREEN)Creating Object File: $@$(RESET)" && cc $(flags) -c $< -o $@) 
 	
 clean:
 	@echo "$(RED)Cleaning Object Files for Philosophers$(RESET)"
