@@ -11,11 +11,11 @@
 /* ************************************************************************** */
 #include "../include/philo.h"
 
-static	void	ft_init_monitor(t_monitor *mon)
+static void	ft_init_monitor(t_monitor *mon)
 {
 	mon->ind = -1;
 	memset(mon->last_meal_time, 0, sizeof(mon->last_meal_time));
-	memset(mon->philos_full, NO, sizeof(mon->philos_full));
+	memset(mon->philos_full, 0, sizeof(mon->philos_full));
 }
 
 static int	ft_all_full(int *philos_full, int tot_philos)
@@ -25,7 +25,7 @@ static int	ft_all_full(int *philos_full, int tot_philos)
 	ind = -1;
 	while (++ind < tot_philos)
 	{
-		if (!philos_full[ind])
+		if (philos_full[ind] == 0)
 			return (NO);
 	}
 	return (YES);
@@ -40,20 +40,20 @@ static void	ft_check_meal_status(t_args *args, t_monitor *mon)
 		pthread_mutex_unlock(args->eating_lock);
 		mon->last_meal_time[mon->ind] = ft_current_time()
 			- args->info->start_time;
-		if (args->info->n_times_eat) //  NOTE: need to protect this variable using mutex?
+		if (args->info->n_times_eat)
 		{
 			pthread_mutex_lock(args->meal_counter_lock);
 			if (*args->meal_counter >= args->info->n_times_eat)
 				mon->philos_full[mon->ind] = YES;
 			pthread_mutex_unlock(args->meal_counter_lock);
 		}
+		return ;
 	}
 	pthread_mutex_unlock(args->eating_lock);
 }
 
 static int	ft_philo_dead_full(t_args *args, t_monitor *mon)
 {
-	// NOTE: args->info->start_time is read by multiple threads at the same time, lock it?
 	if (ft_current_time() - args->info->start_time
 		- mon->last_meal_time[mon->ind] >= args->info->time_to_die)
 	{
@@ -63,12 +63,12 @@ static int	ft_philo_dead_full(t_args *args, t_monitor *mon)
 		ft_death_msg(ft_current_time() - args->info->start_time, args);
 		return (YES);
 	}
-	if (args->info->n_times_eat) // NOTE: read by multiple threads at the same time, lock it?
+	if (args->info->n_times_eat)
 	{
 		if (ft_all_full(mon->philos_full, args->info->tot_philos) == YES)
 		{
 			pthread_mutex_lock(args->death_lock);
-			*args->philo_full = 1;
+			*args->philo_full = YES;
 			pthread_mutex_unlock(args->death_lock);
 			return (YES);
 		}
@@ -79,7 +79,7 @@ static int	ft_philo_dead_full(t_args *args, t_monitor *mon)
 void	ft_monitoring(t_philo *philo, t_info *info)
 {
 	t_monitor	mon;
-	int		stop;
+	int			stop;
 
 	ft_init_monitor(&mon);
 	stop = NO;
@@ -100,4 +100,3 @@ void	ft_monitoring(t_philo *philo, t_info *info)
 			break ;
 	}
 }
-

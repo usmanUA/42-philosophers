@@ -18,14 +18,14 @@
 # include "sys/time.h"
 # include "unistd.h"
 
-typedef enum	s_flags
+typedef enum s_flags
 {
 	STOP,
 	DONT,
 	YES,
 	NO,
 	CONTINUE = 42,
-}	t_flags;
+}					t_flags;
 
 typedef struct s_monitor
 {
@@ -78,14 +78,14 @@ typedef struct s_philo
 }					t_philo;
 
 /* ************ PRINTING MESSAGES *************** */
-void				ft_eating_msg(t_args *args);
+void				ft_eating_msg(t_args *args, int time);
 void				ft_fork_taken(t_args *args, int time);
 void				ft_death_msg(int time, t_args *args);
 void				ft_sleeping_msg(t_args *args);
 void				ft_thinking_msg(t_args *args);
 
 /* ************ ARGUMENTS VALIDATION && SAVING *************** */
-int				ft_valid_args(int argc, char **argv, t_info *info);
+int					ft_valid_args(int argc, char **argv, t_info *info);
 void				ft_save_info(t_info *info);
 
 /* ************ INIT STRUCTS *************** */
@@ -100,9 +100,9 @@ void				ft_init_forks(t_info *info);
 void				ft_philos_atwork(t_philo *philo, t_info *info);
 void				ft_think(t_args *args);
 void				ft_sleep(t_args *args);
-void				ft_eat(t_args *args);
+void				ft_eat(t_args *args, int time);
 
-void	ft_monitoring(t_philo *philo, t_info *info);
+void				ft_monitoring(t_philo *philo, t_info *info);
 
 /* ************ PHILOS AT WORK HELPERS *************** */
 long				ft_current_time(void);

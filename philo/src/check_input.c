@@ -12,7 +12,6 @@
 /* ************************************************************************** */
 
 #include "../include/philo.h"
-#include <stdio.h>
 
 static int	ft_isspace(const char c)
 {
@@ -98,6 +97,6 @@ void	ft_philo_init(t_philo *philo)
 	memset(philo->args, 0, sizeof(philo->args));
 	memset(philo->phil_num, 0, sizeof(philo->phil_num));
 	memset(philo->meal_counter, 0, sizeof(philo->meal_counter));
-	memset(philo->have_eaten, NO, sizeof(philo->have_eaten));
+	memset(philo->have_eaten, 0, sizeof(philo->have_eaten));
 	philo->idx = -1;
 }

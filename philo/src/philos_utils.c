@@ -11,9 +11,9 @@
 /* ************************************************************************** */
 #include "../include/philo.h"
 
-void	ft_eat(t_args *args)
+void	ft_eat(t_args *args, int time)
 {
-	ft_eating_msg(args);
+	ft_eating_msg(args, time);
 	if (args->info->n_times_eat)
 	{
 		pthread_mutex_lock(args->meal_counter_lock);
@@ -64,4 +64,3 @@ void	ft_destroy_mutexes(t_info *info)
 	pthread_mutex_destroy(&(info->print_lock));
 	pthread_mutex_destroy(&(info->death_lock));
 }
-

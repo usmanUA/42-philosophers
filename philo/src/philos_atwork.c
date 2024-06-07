@@ -14,13 +14,13 @@
 static int	ft_stop_simulation(t_args *args, int unlock)
 {
 	pthread_mutex_lock(args->death_lock);
-	if (*args->philo_died == YES || (args->info->n_times_eat && *args->philo_full == YES))
+	if (*args->philo_died == YES || (args->info->n_times_eat
+			&& *args->philo_full == YES))
 	{
 		pthread_mutex_unlock(args->death_lock);
 		if (unlock == YES)
 		{
 			pthread_mutex_unlock(args->left_fork);
-			pthread_mutex_unlock(args->right_fork);
 		}
 		return (YES);
 	}
@@ -28,7 +28,7 @@ static int	ft_stop_simulation(t_args *args, int unlock)
 	return (NO);
 }
 
-static	void	ft_parse(t_args *args, t_info *info, t_philo *philo)
+static void	ft_parse(t_args *args, t_info *info, t_philo *philo)
 {
 	args->info = info;
 	philo->phil_num[philo->idx] = philo->idx + 1;
@@ -50,24 +50,24 @@ static	void	ft_parse(t_args *args, t_info *info, t_philo *philo)
 
 static int	ft_eat_sleep_repeat(t_args *args)
 {
+	int	time;
+
 	pthread_mutex_lock(args->left_fork);
-	ft_fork_taken(args, ft_current_time() - args->info->start_time);
-	pthread_mutex_lock(args->right_fork);
 	ft_fork_taken(args, ft_current_time() - args->info->start_time);
 	if (ft_stop_simulation(args, YES) == YES)
 		return (STOP);
+	pthread_mutex_lock(args->right_fork);
 	pthread_mutex_lock(args->eating_lock);
 	*args->have_eaten = YES;
 	pthread_mutex_unlock(args->eating_lock);
-	ft_eat(args);
+	time = (int)ft_current_time() - args->info->start_time;
+	ft_eat(args, time);
 	pthread_mutex_unlock(args->left_fork);
 	pthread_mutex_unlock(args->right_fork);
-	if (ft_stop_simulation(args, NO) == YES)
-		return (STOP);
 	ft_sleep(args);
-	ft_thinking_msg(args);
 	if (ft_stop_simulation(args, NO) == YES)
 		return (STOP);
+	ft_thinking_msg(args);
 	return (DONT);
 }
 
