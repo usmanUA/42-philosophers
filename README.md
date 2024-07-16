@@ -1,5 +1,6 @@
 # 42-Philosophers
-## Introduction to the Dining Philosophers Problem
+42-Philosophers project aims to simulates the famous Dining Philosophers Problem.
+## Dining Philosophers Problem
 
 The dining philosophers problem is a classic synchronization problem used to illustrate the challenges of concurrent programming. It involves philosophers sitting at a round table, where each must alternately think and eat. Eating requires two forks, but there are only as many forks as philosophers, and each philosopher can only pick up the fork to their immediate left and right. The goal is to devise a strategy that ensures no philosopher starves while avoiding deadlock and contention.
 
@@ -7,7 +8,7 @@ The dining philosophers problem is a classic synchronization problem used to ill
 
 The 42 Philosophers project is part of the 42 Cursus, which aims to deepen students' understanding of multithreading and synchronization. In this project, students implement a solution to the dining philosophers problem using threads, ensuring that the philosophers can eat without causing a deadlock or starvation. This involves using synchronization primitives like mutexes to manage access to shared resources (forks).
 
-## Introduction to Data Races and Mutexes
+## Data Races and Mutexes
 
 ### Data Races
 
@@ -17,6 +18,16 @@ A data race occurs when two or more threads access shared data simultaneously, a
 
 Mutexes (mutual exclusions) are synchronization primitives used to prevent data races by ensuring that only one thread can access a critical section of code at a time. By locking a mutex before accessing shared resources and unlocking it afterward, we can coordinate threads' actions to maintain data integrity and avoid conflicts.
 
----
+## Usage
 
-For more detailed information and complete code implementation, please refer to the source code files provided in this project repository.
+To run the project, follow these steps:
+
+1. **Clone the repository:**
+   ```sh
+   $ git clone https://github.com/DeRuina/philosophers.git
+   $ cd philosophers
+   $ make
+   $ ./philo <number_of_philosophers> <time_to_die> <time_to_eat> <time_to_sleep> [number_of_times_each_philosopher_must_eat]
+
+## Author
+    @usmanUA
