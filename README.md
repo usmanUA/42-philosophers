@@ -24,10 +24,10 @@ To run the project, follow these steps:
 
 1. **Clone the repository:**
    ```sh
-   $ git clone https://github.com/DeRuina/philosophers.git
+   $ git clone https://github.com/usmanUA/42-philosophers
    $ cd philosophers
    $ make
    $ ./philo <number_of_philosophers> <time_to_die> <time_to_eat> <time_to_sleep> [number_of_times_each_philosopher_must_eat]
 
 ## Author
-    [@usmanUA](https://github.com/usmanUA)
+    <a href="https://github.com/usmanUA">@usmanUA</a>
